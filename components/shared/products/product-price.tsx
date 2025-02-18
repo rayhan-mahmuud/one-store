@@ -4,11 +4,11 @@ export default function ProductPrice({
   value,
   className,
 }: {
-  value: number;
+  value: string;
   className?: string;
 }) {
   //Ensure 2 decimal places
-  const strValue = value.toFixed(2);
+  const strValue = Number(value).toFixed(2);
   const [intValue, floatValue] = strValue.trim().split(".");
 
   return (
