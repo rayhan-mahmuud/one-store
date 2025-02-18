@@ -6,7 +6,7 @@ export default function ProductList({
   title,
   limit,
 }: {
-  data: any;
+  data: Product[];
   title?: string;
   limit?: number;
 }) {
