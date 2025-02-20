@@ -36,6 +36,7 @@ export default function CredentialsSignInForm() {
             type="email"
             required
             autoComplete="email"
+            defaultValue={state?.inputs?.email}
           />
           {state?.fieldErrors?.email && (
             <p className="my-2 text-sm text-destructive">
@@ -47,7 +48,7 @@ export default function CredentialsSignInForm() {
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
-            name="name"
+            name="password"
             type="password"
             required
             autoComplete="password"

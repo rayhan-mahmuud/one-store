@@ -10,23 +10,32 @@ export async function signInWithCredentials(
   prevState: unknown,
   formData: FormData
 ) {
+  const rawData = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  };
   try {
-    const user = signInFormSchema.safeParse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
+    const userResult = signInFormSchema.safeParse(rawData);
+    console.log(userResult);
+    console.log(userResult.error);
+    if (!userResult.success) {
+      return {
+        success: false,
+        message: "Invalid email or password!",
+        fieldErrors: userResult.error.flatten().fieldErrors,
+        inputs: rawData,
+      };
+    }
+    const user = userResult.data;
+
     await signIn("credentials", user);
     return { success: true, message: "Successfully Logged In!" };
-  } catch (error: any) {
+  } catch (error) {
+    console.log(error);
     if (isRedirectError(error)) {
       throw error;
-    } else if (error?.name === "ZodError") {
-      // Flatten errors to send field-level errors
-      const { fieldErrors } = error.flatten();
-      return { success: false, fieldErrors };
-    } else {
-      return { success: false, message: "Invalid email or password!" };
     }
+    return { success: false, message: "Invalid email or password!" };
   }
 }
 
@@ -75,7 +84,7 @@ export async function signUpWithCredentials(
       password: plainPassword,
     });
     return { success: true, message: "User registered succesfully!" };
-  } catch (error: any) {
+  } catch (error) {
     if (isRedirectError(error)) {
       throw error;
     }
