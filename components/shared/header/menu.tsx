@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "./theme-toggle";
 import Link from "next/link";
-import { EllipsisVerticalIcon, ShoppingCart, UserIcon } from "lucide-react";
+import { EllipsisVerticalIcon, ShoppingCart } from "lucide-react";
 import {
   Sheet,
   SheetContent,

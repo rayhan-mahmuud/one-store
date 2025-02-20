@@ -6,61 +6,42 @@ import { Label } from "@/components/ui/label";
 import { signUpWithCredentials } from "@/lib/actions/user-actions";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useActionState, useRef } from "react";
-import { useFormStatus } from "react-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signUpFormSchema } from "@/lib/validators";
-
-const SignUpButton = () => {
-  const { pending } = useFormStatus();
-  return (
-    <Button className="w-full" variant="default" disabled={pending}>
-      {pending ? "Submitting..." : "Sign Up"}
-    </Button>
-  );
-};
+import { useActionState } from "react";
 
 export default function CredentialsSignUpForm() {
-  const [data, action] = useActionState(signUpWithCredentials, {
+  const [state, action, isPending] = useActionState(signUpWithCredentials, {
     success: false,
     message: "",
   });
 
-  const signUpFormRef = useRef<HTMLFormElement>(null);
-
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(signUpFormSchema),
-  });
+  const SignUpButton = () => {
+    return (
+      <Button className="w-full" variant="default" disabled={isPending}>
+        {isPending ? "Submitting..." : "Sign Up"}
+      </Button>
+    );
+  };
 
   return (
-    <form
-      action={action}
-      ref={signUpFormRef}
-      onSubmit={handleSubmit(() => signUpFormRef.current?.submit())}
-    >
+    <form action={action}>
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-6">
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            {...register("name")}
+            name="name"
             type="text"
             required
             autoComplete="name"
-            defaultValue=""
+            defaultValue={state?.inputs?.name}
           />
-          {errors.name && (
+          {state.fieldErrors?.name && (
             <p className="my-2 text-sm text-destructive">
-              {errors.name?.message}
+              {state.fieldErrors.name}
             </p>
           )}
         </div>
@@ -68,15 +49,15 @@ export default function CredentialsSignUpForm() {
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
-            {...register("email")}
+            name="email"
             type="email"
             required
             autoComplete="email"
-            defaultValue=""
+            defaultValue={state?.inputs?.email}
           />
-          {errors.email && (
+          {state.fieldErrors?.email && (
             <p className="my-2 text-sm text-destructive">
-              {errors.email?.message}
+              {state.fieldErrors.email}
             </p>
           )}
         </div>
@@ -84,15 +65,15 @@ export default function CredentialsSignUpForm() {
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
-            {...register("password")}
+            name="password"
             type="password"
             required
             autoComplete="password"
             defaultValue=""
           />
-          {errors.password && (
+          {state.fieldErrors?.password && (
             <p className="my-2 text-sm text-destructive">
-              {errors.password?.message}
+              {state.fieldErrors.password}
             </p>
           )}
         </div>
@@ -100,21 +81,21 @@ export default function CredentialsSignUpForm() {
           <Label htmlFor="confirmPassword">Confirm Password</Label>
           <Input
             id="confirmPassword"
-            {...register("confirmPassword")}
+            name="confirmPassword"
             type="password"
             required
             autoComplete="confirmPassword"
             defaultValue=""
           />
-          {errors.confirmPassword && (
+          {state.fieldErrors?.confirmPassword && (
             <p className="my-2 text-sm text-destructive">
-              {errors.confirmPassword?.message}
+              {state.fieldErrors.confirmPassword}
             </p>
           )}
         </div>
         <SignUpButton />
-        {data && !data.success && (
-          <div className="text-center text-destructive">{data.message}</div>
+        {state && !state.success && (
+          <div className="text-center text-destructive">{state.message}</div>
         )}
         <p className="text-xs text-center text-muted-foreground">
           Already have an account?{" "}

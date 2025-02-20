@@ -11,17 +11,22 @@ export async function signInWithCredentials(
   formData: FormData
 ) {
   try {
-    const user = signInFormSchema.parse({
+    const user = signInFormSchema.safeParse({
       email: formData.get("email"),
       password: formData.get("password"),
     });
     await signIn("credentials", user);
     return { success: true, message: "Successfully Logged In!" };
-  } catch (error) {
+  } catch (error: any) {
     if (isRedirectError(error)) {
       throw error;
+    } else if (error?.name === "ZodError") {
+      // Flatten errors to send field-level errors
+      const { fieldErrors } = error.flatten();
+      return { success: false, fieldErrors };
+    } else {
+      return { success: false, message: "Invalid email or password!" };
     }
-    return { success: false, message: "Invalid email or password!" };
   }
 }
 
@@ -33,13 +38,25 @@ export async function signUpWithCredentials(
   prevState: unknown,
   formData: FormData
 ) {
+  const rawData = {
+    name: formData.get("name") as string,
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+    confirmPassword: formData.get("confirmPassword") as string,
+  };
+
   try {
-    const newUser = signUpFormSchema.parse({
-      name: formData.get("name"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      confirmPassword: formData.get("confirmPassword"),
-    });
+    const newUserResult = signUpFormSchema.safeParse(rawData);
+
+    if (!newUserResult.success) {
+      return {
+        success: false,
+        message: "Please fix the errors above!",
+        fieldErrors: newUserResult.error.flatten().fieldErrors,
+        inputs: rawData,
+      };
+    }
+    const newUser = newUserResult.data;
     const plainPassword = newUser.password;
     newUser.password = hashSync(newUser.password, 10);
 
@@ -58,11 +75,10 @@ export async function signUpWithCredentials(
       password: plainPassword,
     });
     return { success: true, message: "User registered succesfully!" };
-  } catch (error) {
+  } catch (error: any) {
     if (isRedirectError(error)) {
       throw error;
     }
-
     return { success: false, message: "User registration failed!" };
   }
 }

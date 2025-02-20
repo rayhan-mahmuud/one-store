@@ -6,60 +6,40 @@ import { Label } from "@/components/ui/label";
 import { signInWithCredentials } from "@/lib/actions/user-actions";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useActionState, useRef } from "react";
-import { useFormStatus } from "react-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { signInFormSchema } from "@/lib/validators";
-
-const SignInButton = () => {
-  const { pending } = useFormStatus();
-  return (
-    <Button className="w-full" variant="default" disabled={pending}>
-      {pending ? "Signing in..." : "Sign In"}
-    </Button>
-  );
-};
+import { useActionState } from "react";
 
 export default function CredentialsSignInForm() {
-  const [data, action] = useActionState(signInWithCredentials, {
+  const [state, action, isPending] = useActionState(signInWithCredentials, {
     success: false,
     message: "",
   });
-  const signInFormRef = useRef<HTMLFormElement>(null);
-
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(signInFormSchema),
-  });
+  const SignInButton = () => {
+    return (
+      <Button className="w-full" variant="default" disabled={isPending}>
+        {isPending ? "Signing in..." : "Sign In"}
+      </Button>
+    );
+  };
 
   return (
-    <form
-      action={action}
-      ref={signInFormRef}
-      onSubmit={handleSubmit(() => signInFormRef.current?.submit())}
-    >
+    <form action={action}>
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="space-y-6">
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
+            name="email"
             type="email"
             required
             autoComplete="email"
-            defaultValue=""
-            {...register("email")}
           />
-          {errors.email && (
+          {state?.fieldErrors?.email && (
             <p className="my-2 text-sm text-destructive">
-              {errors.email?.message}
+              {state?.fieldErrors.email}
             </p>
           )}
         </div>
@@ -67,16 +47,15 @@ export default function CredentialsSignInForm() {
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
+            name="name"
             type="password"
             required
             autoComplete="password"
-            defaultValue=""
-            {...register("password")}
           />
         </div>
         <SignInButton />
-        {data && !data.success && (
-          <div className="text-center text-destructive">{data.message}</div>
+        {state && !state.success && (
+          <div className="text-center text-destructive">{state.message}</div>
         )}
         <p className="text-xs text-center text-muted-foreground">
           Don&apos;t have an account?{" "}
