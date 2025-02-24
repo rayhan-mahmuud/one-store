@@ -16,8 +16,6 @@ export async function signInWithCredentials(
   };
   try {
     const userResult = signInFormSchema.safeParse(rawData);
-    console.log(userResult);
-    console.log(userResult.error);
     if (!userResult.success) {
       return {
         success: false,
@@ -31,7 +29,6 @@ export async function signInWithCredentials(
     await signIn("credentials", user);
     return { success: true, message: "Successfully Logged In!" };
   } catch (error) {
-    console.log(error);
     if (isRedirectError(error)) {
       throw error;
     }

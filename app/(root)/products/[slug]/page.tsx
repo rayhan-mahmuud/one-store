@@ -1,9 +1,10 @@
+import AddToCart from "@/components/shared/products/add-to-cart";
 import ProductImages from "@/components/shared/products/product-images";
 import ProductPrice from "@/components/shared/products/product-price";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/actions/product-actions";
+import { CartItem } from "@/types";
 import { notFound } from "next/navigation";
 
 export default async function ProductDetails(props: {
@@ -13,6 +14,15 @@ export default async function ProductDetails(props: {
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
+
+  const cartItem: CartItem = {
+    productId: product.id,
+    slug: product.slug,
+    price: product.price,
+    name: product.name,
+    qty: 1,
+    image: product.images![0],
+  };
 
   return (
     <>
@@ -56,11 +66,7 @@ export default async function ProductDetails(props: {
                     <Badge variant="destructive">Out of Stock</Badge>
                   )}
                 </div>
-                {product.stock > 0 && (
-                  <Button variant="default" className="w-full">
-                    Add to Cart
-                  </Button>
-                )}
+                {product.stock > 0 && <AddToCart item={cartItem} />}
               </CardContent>
             </Card>
           </div>
