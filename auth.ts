@@ -5,6 +5,7 @@ import { prisma } from "./db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export const config = {
   pages: {
@@ -64,6 +65,7 @@ export const config = {
     },
     async jwt({ token, session, user, trigger }: any) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
 
         if (user.name === "NO_NAME") {
@@ -74,12 +76,56 @@ export const config = {
             data: { name: token.name },
           });
         }
+
+        if (trigger === "signIn" || trigger === "signUp") {
+          const cookiesObj = await cookies();
+          const sessionCartId = cookiesObj?.get("sessionCartId")?.value;
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId: sessionCartId },
+            });
+
+            if (sessionCart) {
+              //Delete current user cart
+              await prisma.cart.deleteMany({
+                where: { userId: user.id },
+              });
+
+              //Assign session cart to the user
+              await prisma.cart.update({
+                where: { id: sessionCart.id },
+                data: {
+                  userId: user.id,
+                },
+              });
+            }
+          }
+        }
       }
 
       return token;
     },
 
     async authorized({ request, auth }: any) {
+      //List of protected route patterns
+      const protectedPaths = [
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/profile/,
+        /\/user\/.*/,
+        /\/admin\/.*/,
+        /\/admin/,
+        /\/order\/.*/,
+      ];
+      //Get path name from url
+      const { pathname } = request.nextUrl;
+
+      //Check for unathenticated user accessing protected paths
+      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false;
+
+      // Generating session cart id cookie for anuyone coming into the page
       if (!request.cookies.get("sessionCartId")) {
         const sessionCartId = crypto.randomUUID();
         const newRequestHeaders = new Headers(request.headers);

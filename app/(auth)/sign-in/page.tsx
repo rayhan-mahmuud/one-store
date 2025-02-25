@@ -22,6 +22,7 @@ export default async function SignInPage(props: {
   const session = await auth();
 
   const { callbackUrl } = await props.searchParams;
+  console.log(callbackUrl);
 
   if (session) redirect(callbackUrl || "/");
 

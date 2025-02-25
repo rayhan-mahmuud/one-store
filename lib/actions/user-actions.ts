@@ -88,3 +88,15 @@ export async function signUpWithCredentials(
     return { success: false, message: "User registration failed!" };
   }
 }
+
+// Get user by userId
+
+export async function getUserById(userId: string) {
+  const user = await prisma.user.findFirst({
+    where: { id: userId },
+  });
+
+  if (!user) return undefined;
+
+  return user;
+}

@@ -47,3 +47,18 @@ export function formatZodErrors(error: unknown): string {
 
   return "An unknown error occurred";
 }
+
+//Format currency in cart total
+const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
+  currency: "USD",
+  style: "currency",
+  minimumFractionDigits: 2,
+});
+
+export function formatCurrency(price: number | string) {
+  if (typeof price === "number") {
+    return CURRENCY_FORMATTER.format(price);
+  } else if (typeof price === "string") {
+    return CURRENCY_FORMATTER.format(Number(price));
+  } else return "Nan";
+}

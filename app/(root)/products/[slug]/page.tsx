@@ -3,6 +3,7 @@ import ProductImages from "@/components/shared/products/product-images";
 import ProductPrice from "@/components/shared/products/product-price";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getUserCart } from "@/lib/actions/cart-actions";
 import { getProductBySlug } from "@/lib/actions/product-actions";
 import { CartItem } from "@/types";
 import { notFound } from "next/navigation";
@@ -23,6 +24,8 @@ export default async function ProductDetails(props: {
     qty: 1,
     image: product.images![0],
   };
+
+  const cart = await getUserCart();
 
   return (
     <>
@@ -66,7 +69,7 @@ export default async function ProductDetails(props: {
                     <Badge variant="destructive">Out of Stock</Badge>
                   )}
                 </div>
-                {product.stock > 0 && <AddToCart item={cartItem} />}
+                {product.stock > 0 && <AddToCart cart={cart} item={cartItem} />}
               </CardContent>
             </Card>
           </div>

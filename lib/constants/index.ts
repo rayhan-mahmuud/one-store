@@ -8,3 +8,19 @@ export const SERVER_URL =
 
 export const LATEST_PRODUCTS_LIMIT =
   Number(process.env.LATEST_PRODUCTS_LIMIT) || 4;
+
+export const DefaultShippingAddressValue = {
+  fullName: "",
+  address1: "",
+  address2: "",
+  city: "",
+  country: "",
+  postalCode: "",
+};
+
+export const CHECKOUT_STEPS_ARRAY = [
+  "Login",
+  "Shipping Details",
+  "Payment Method",
+  "Place Order",
+];
