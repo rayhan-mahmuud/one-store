@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { formatNumWithDecimal } from "./utils";
+import { PAYMENT_METHODS } from "./constants";
 
 const currency = z
   .string()
@@ -75,4 +76,41 @@ export const shippingAddressSchema = z.object({
   city: z.string().min(3, "City name should be atleast 3 charecters!"),
   country: z.string().min(3, "Country name should be atleast 3 charecters!"),
   postalCode: z.string().min(4, "Enter a valid postal code!"),
+});
+
+// Payment method
+
+export const paymentMethodSchema = z
+  .object({
+    type: z.string().min(1, "Payment method is required!"),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+    path: ["type"],
+    message: "Payment method must be within supported methods!",
+  });
+
+// Insert Order schema
+
+export const insertOrderSchema = z.object({
+  userId: z.string().min(1, "User is required!"),
+  itemsPrice: currency,
+  totalPrice: currency,
+  shippingPrice: currency,
+  taxPrice: currency,
+  paymentMethod: z.string().refine((data) => PAYMENT_METHODS.includes(data), {
+    message: "Invalid payment method!",
+  }),
+  shippingAddress: shippingAddressSchema,
+});
+
+// Order item schema
+
+export const orderItemSchema = z.object({
+  orderId: z.string().min(1, "Order Id is required!"),
+  productId: z.string().min(1, "Product Id is required!"),
+  name: z.string().min(1, "Name is required!"),
+  slug: z.string().min(1, "Slug is required!"),
+  qty: z.number().int().nonnegative("Quantity should be positive number"),
+  image: z.string().min(1, "Image is required!"),
+  price: currency,
 });

@@ -5,6 +5,11 @@ import { redirect } from "next/navigation";
 import ShippingAddressForm from "./shipping-address-form";
 import { ShippingAddress } from "@/types";
 import CheckoutSteps from "@/components/shared/checkout-steps";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shipping Details",
+};
 
 export default async function ShippingAddressPage() {
   const cart = await getUserCart();

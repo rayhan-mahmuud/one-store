@@ -62,3 +62,47 @@ export function formatCurrency(price: number | string) {
     return CURRENCY_FORMATTER.format(Number(price));
   } else return "Nan";
 }
+
+//Shorten Id
+
+export function formatId(id: string) {
+  return `##${id.substring(id.length - 6)}`;
+}
+
+//Format date and time
+
+export function formatDateTime(dateString: Date) {
+  const date = new Date(dateString);
+
+  // Format full date and time (12-hour format with AM/PM)
+  const formattedDateTime = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+  }).format(date);
+
+  // Format date only
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+
+  // Format time only (12-hour format)
+  const formattedTime = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+  }).format(date);
+
+  return {
+    formattedDateTime,
+    formattedDate,
+    formattedTime,
+  };
+}
