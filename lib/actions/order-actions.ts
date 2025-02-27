@@ -123,3 +123,33 @@ export async function getOrderById(orderId: string) {
 
   return convertToPlainObject(order);
 }
+
+// Get all the orders for the current user
+export async function getUserOrders({
+  limit = 2,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const session = await auth();
+  if (!session) throw new Error("User is not authenticated!");
+  const userId = session.user?.id;
+  if (!userId) throw new Error("User is not authenticated!");
+
+  const orders = await prisma.order.findMany({
+    where: { userId: userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+
+  const ordersCount = await prisma.order.count({
+    where: { userId: userId },
+  });
+
+  return {
+    orders,
+    totalPages: Math.ceil(ordersCount / limit),
+  };
+}
