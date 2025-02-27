@@ -7,10 +7,10 @@ import {
   signUpFormSchema,
 } from "../validators";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { hashSync } from "bcrypt-ts-edge";
 import { prisma } from "@/db/prisma";
 import { PaymentMethod } from "@/types";
 import { formatZodErrors } from "../utils";
+import { hash } from "../encrypt";
 
 export async function signInWithCredentials(
   prevState: unknown,
@@ -70,7 +70,7 @@ export async function signUpWithCredentials(
     }
     const newUser = newUserResult.data;
     const plainPassword = newUser.password;
-    newUser.password = hashSync(newUser.password, 10);
+    newUser.password = await hash(newUser.password);
 
     // Adding user to the database
     await prisma.user.create({
