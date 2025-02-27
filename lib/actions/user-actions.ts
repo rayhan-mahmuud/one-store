@@ -142,7 +142,7 @@ export async function updateUserPaymentMethod(data: PaymentMethod) {
   } catch (error) {
     return {
       success: false,
-      message: "An error occured!",
+      message: formatZodErrors(error),
     };
   }
 }

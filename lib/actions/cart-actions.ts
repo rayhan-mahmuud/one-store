@@ -129,7 +129,7 @@ export async function addItemToCart(data: CartItem) {
   } catch (error) {
     return {
       success: false,
-      message: "There was an issue!",
+      message: formatZodErrors(error),
     };
   }
 }
@@ -212,7 +212,7 @@ export async function removeItemFromCart(productId: string) {
   } catch (error) {
     return {
       success: false,
-      message: "An unknown error ocuured!",
+      message: formatZodErrors(error),
     };
   }
 }
@@ -252,7 +252,7 @@ export async function updateUserAddress(data: ShippingAddress) {
   } catch (error) {
     return {
       success: false,
-      message: "An error occured!",
+      message: formatZodErrors(error),
     };
   }
 }
