@@ -16,7 +16,7 @@ async function main() {
   for (let i = 0; i < sampleData.users.length; i++) {
     users.push({
       ...sampleData.users[i],
-      password: await hash(sampleData.users[i].password),
+      password: await hash(sampleData.users[i]?.password),
     });
   }
 
