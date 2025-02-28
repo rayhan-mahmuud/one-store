@@ -1,3 +1,3 @@
 export default function UserProfilePage() {
-  return <>Profile</>;
+  return <>Profile Page coming soon...</>;
 }
